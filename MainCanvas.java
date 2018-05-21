@@ -1,4 +1,4 @@
-package com.example.yun.aulamobile;
+package com.example.yun.aulamobile2;
 
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -34,8 +34,9 @@ public class MainCanvas extends AppCompatActivity{
         drawView = new DrawView(this);
         setContentView(drawView);
 
-        handler = new TouchHandler(drawView);
+        handler = new TouchHandler();
         drawView.setOnTouchListener(handler);
+
     }
 
     @Override
@@ -56,103 +57,3 @@ public class MainCanvas extends AppCompatActivity{
 
 
 
-class DrawView extends SurfaceView implements Runnable{
-
-    Canvas canvas;
-    SurfaceHolder surfaceHolder;
-    Thread gameLoop;
-    boolean running = false;
-
-
-
-
-
-    Bitmap megaman;
-    int widthFrame = 150, heightFrame = 150;
-    int frameCount = 5;
-    float timer;
-
-
-
-    AnimatedSprite megamanSprite, megamanSprite2;
-
-
-
-
-    public DrawView(Context context){
-        super(context);
-
-        surfaceHolder = getHolder();
-
-        megaman = BitmapFactory.decodeResource(this.getResources(), R.drawable.megaman);
-        megaman = Bitmap.createScaledBitmap(megaman,widthFrame * frameCount,heightFrame,false);
-
-        megamanSprite = new AnimatedSprite(this.megaman,50,250);
-        megamanSprite2 = new AnimatedSprite(this.megaman,50,400);
-    }
-
-    public void Stop(){
-        running = false;
-
-        try {
-            gameLoop.join();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-    }
-
-    public void Resume(){
-        running = true;
-        gameLoop = new Thread(this);
-        gameLoop.start();
-    }
-
-
-    @Override
-    public void run() {
-
-        while(running){
-            long time = System.currentTimeMillis();
-            megamanSprite.Update();
-            megamanSprite2.Update();
-            Update();
-            Draw();
-            try {
-                gameLoop.sleep(16);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            megamanSprite.timer += System.currentTimeMillis() - time;
-            megamanSprite2.timer += System.currentTimeMillis() - time;
-            timer += System.currentTimeMillis() - time;
-
-
-        }
-    }
-
-    private void Update(){
-
-    }
-
-
-
-
-
-    private void Draw(){
-
-        if(!surfaceHolder.getSurface().isValid()){
-            return;
-        }
-        canvas = surfaceHolder.lockCanvas();
-
-        canvas.drawColor(Color.WHITE);
-
-        megamanSprite.Draw(canvas);
-        megamanSprite2.Draw(canvas);
-
-
-        surfaceHolder.unlockCanvasAndPost(canvas);
-
-    }
-
-}
